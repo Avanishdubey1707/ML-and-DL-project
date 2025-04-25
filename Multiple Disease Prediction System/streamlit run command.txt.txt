@@ -1,0 +1,1 @@
+streamlit run "C:\Users\LENOVO\.vscode\cli\PYTHON\Multiple Disease Prediction System\Multiple Disease Pred.py"
