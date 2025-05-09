@@ -6,10 +6,10 @@ from datetime import datetime
 import os
 
 # loading the saved models 
-heart_disease_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved projects/heart_disease_model.sav", "rb"))
-diabetes_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved projects/diabetes_model.sav", "rb"))
-parkinson_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved projects/parkinsons_model.sav", "rb"))
-breastCancer_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved projects/breast_cancer_model.sav", "rb"))
+heart_disease_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved_models/heart_disease_model.sav", "rb"))
+diabetes_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved_models/diabetes_model.sav", "rb"))
+parkinson_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved_models/parkinsons_model.sav", "rb"))
+breastCancer_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved_models/breast_cancer_model.sav", "rb"))
 
 # Sidebar for navigation
 with st.sidebar:
