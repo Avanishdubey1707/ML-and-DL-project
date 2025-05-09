@@ -1,12 +1,15 @@
-import pickle 
+import pickle
 import streamlit as st
 from streamlit_option_menu import option_menu
+import pandas as pd
+from datetime import datetime
+import os
 
-# loading the saved models 
-heart_disease_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved projects/heart_disease_model.sav", "rb"))
-diabetes_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved projects/diabetes_model.sav", "rb"))
-parkinson_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved projects/parkinsons_model.sav", "rb"))
-breastCancer_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved projects/breast_cancer_model.sav", "rb"))
+# Loading the saved models
+heart_disease_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved_models/heart_disease_model.sav", "rb"))
+diabetes_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved_models/diabetes_model.sav", "rb"))
+parkinson_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved_models/parkinsons_model.sav", "rb"))
+breastCancer_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved_models/breast_cancer_model.sav", "rb"))
 
 # Sidebar for navigation
 with st.sidebar:
@@ -17,7 +20,35 @@ with st.sidebar:
         default_index=0
     )
 
-# Heart disease prediction page 
+# Function to log predictions and feedback
+def log_prediction_and_feedback(inputs, prediction, feature_names, log_file, feedback_file):
+    # Log prediction
+    log_data = {
+        "timestamp": [datetime.now()],
+        **{feature_names[i]: [inputs[i]] for i in range(len(inputs))},
+        "prediction": [int(prediction[0])]
+    }
+    df_log = pd.DataFrame(log_data)
+    if os.path.exists(log_file):
+        df_log.to_csv(log_file, mode='a', index=False, header=False)
+    else:
+        df_log.to_csv(log_file, index=False)
+
+    # Collect user feedback
+    feedback = st.radio("Was this prediction correct?", ("Yes", "No"), key="feedback")
+    if st.button("Submit Feedback"):
+        feedback_df = pd.DataFrame({
+            "timestamp": [datetime.now()],
+            "prediction": [int(prediction[0])],
+            "user_feedback": [feedback]
+        })
+        if os.path.exists(feedback_file):
+            feedback_df.to_csv(feedback_file, mode='a', index=False, header=False)
+        else:
+            feedback_df.to_csv(feedback_file, index=False)
+        st.success("Thank you for your feedback!")
+
+# Heart disease prediction page
 if selected == "Heart disease prediction":
     st.title("Heart Disease Prediction using ML")
     col1, col2, col3 = st.columns(3)
@@ -49,18 +80,21 @@ if selected == "Heart disease prediction":
     with col1:
         thal = st.text_input('Thal: 0=Normal; 1=Fixed Defect; 2=Reversible Defect')
 
-    heart_diagnosis = ''
-
     if st.button('Heart Disease Test Result'):
-        heart_prediction = heart_disease_model.predict([[age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]])
-        if heart_prediction[0] == 1:
-            heart_diagnosis = "The person is having heart disease"
-        else:
-            heart_diagnosis = "The person does not have heart disease"
+        try:
+            inputs = [age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]
+            prediction = heart_disease_model.predict([inputs])
+            if prediction[0] == 1:
+                st.success("The person is having heart disease")
+            else:
+                st.success("The person does not have heart disease")
+            log_prediction_and_feedback(inputs, prediction, 
+                                        ["age", "sex", "cp", "trestbps", "chol", "fbs", "restecg", "thalach", "exang", "oldpeak", "slope", "ca", "thal"], 
+                                        "heart_disease_logs.csv", "heart_disease_feedback.csv")
+        except Exception as e:
+            st.error(f"Error: {e}")
 
-    st.success(heart_diagnosis)
-
-# Diabetes prediction page 
+# Diabetes prediction page
 if selected == "Diabetes prediction":
     st.title("Diabetes Prediction using ML")
     col1, col2, col3 = st.columns(3)
@@ -82,18 +116,21 @@ if selected == "Diabetes prediction":
     with col2:
         Age = st.text_input('Age of the Person')
 
-    diab_diagnosis = ''
-
     if st.button('Diabetes Test Result'):
-        diab_prediction = diabetes_model.predict([[Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]])
-        if diab_prediction[0] == 1:
-            diab_diagnosis = 'The person is Diabetic'
-        else:
-            diab_diagnosis = 'The person is not Diabetic'
+        try:
+            inputs = [Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]
+            prediction = diabetes_model.predict([inputs])
+            if prediction[0] == 1:
+                st.success("The person is Diabetic")
+            else:
+                st.success("The person is not Diabetic")
+            log_prediction_and_feedback(inputs, prediction, 
+                                        ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"], 
+                                        "diabetes_logs.csv", "diabetes_feedback.csv")
+        except Exception as e:
+            st.error(f"Error: {e}")
 
-    st.success(diab_diagnosis)
-
-# Parkinson's prediction page 
+# Parkinson's prediction page
 if selected == "Parkinsons prediction":
     st.title("Parkinson's Prediction using ML")
     col1, col2, col3, col4, col5 = st.columns(5)
@@ -143,18 +180,21 @@ if selected == "Parkinsons prediction":
     with col2:
         PPE = st.text_input('PPE')
 
-    parkinsons_diagnosis = ''
-
     if st.button("Parkinson's Test Result"):
-        parkinsons_prediction = parkinson_model.predict([[fo, fhi, flo, jitter_percent, Jitter_Abs, RAP, PPQ, DDP, Shimmer, Shimmer_DB, APQ3, APQ5, APQ, DDA, NHR, HNR, RPDE, DFA, spread1, spread2, D2, PPE]])
-        if parkinsons_prediction[0] == 1:
-            parkinsons_diagnosis = "The person has Parkinson's disease"
-        else:
-            parkinsons_diagnosis = "The person does not have Parkinson's disease"
+        try:
+            inputs = [fo, fhi, flo, jitter_percent, Jitter_Abs, RAP, PPQ, DDP, Shimmer, Shimmer_DB, APQ3, APQ5, APQ, DDA, NHR, HNR, RPDE, DFA, spread1, spread2, D2, PPE]
+            prediction = parkinson_model.predict([inputs])
+            if prediction[0] == 1:
+                st.success("The person has Parkinson's disease")
+            else:
+                st.success("The person does not have Parkinson's disease")
+            log_prediction_and_feedback(inputs, prediction, 
+                                        ["fo", "fhi", "flo", "jitter_percent", "Jitter_Abs", "RAP", "PPQ", "DDP", "Shimmer", "Shimmer_DB", "APQ3", "APQ5", "APQ", "DDA", "NHR", "HNR", "RPDE", "DFA", "spread1", "spread2", "D2", "PPE"], 
+                                        "parkinsons_logs.csv", "parkinsons_feedback.csv")
+        except Exception as e:
+            st.error(f"Error: {e}")
 
-    st.success(parkinsons_diagnosis)
-
-# Breast Cancer prediction page 
+# Breast Cancer prediction page
 if selected == "Breast Cancer prediction":
     def breast_cancer_page():
         st.title("Breast Cancer Prediction using ML")
@@ -182,6 +222,7 @@ if selected == "Breast Cancer prediction":
                     st.success("The person **has breast cancer**.")
                 else:
                     st.success("The person **does not have breast cancer**.")
+                log_prediction_and_feedback(inputs, prediction, feature_names, "breast_cancer_logs.csv", "breast_cancer_feedback.csv")
             except Exception as e:
                 st.error(f"Error: {e}")
 
