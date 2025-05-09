@@ -3,10 +3,10 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 
 # loading the saved models 
-heart_disease_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved projects/heart_disease_model.sav", "rb"))
-diabetes_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved projects/diabetes_model.sav", "rb"))
-parkinson_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved projects/parkinsons_model.sav", "rb"))
-breastCancer_model = pickle.load(open("C:/Users/LENOVO/.vscode/cli/PYTHON/Multiple Disease Prediction System/saved projects/breast_cancer_model.sav", "rb"))
+heart_disease_model = pickle.load(open("saved projects/heart_disease_model.sav", "rb"))
+diabetes_model = pickle.load(open("saved projects/diabetes_model.sav", "rb"))
+parkinson_model = pickle.load(open("saved projects/parkinsons_model.sav", "rb"))
+breastCancer_model = pickle.load(open("saved projects/breast_cancer_model.sav", "rb"))
 
 # Sidebar for navigation
 with st.sidebar:
